@@ -301,7 +301,7 @@ $('tt').onclick=()=>{
   nodes=sn;edges=se;
   $('tr').innerHTML=R.join('');
 };
-const TEAM=[["Nitish Pandey","Team Lead","Integration, GitHub repo, final demo"],["Member 2","UI Developer","Canvas, add/move/delete, undo, sample graphs, adjacency matrix"],["Member 3","Kruskal Developer","Sorting, Union-Find, step generation, sorted edge list"],["Member 4","Prim Developer","Priority queue, start node, step generation"],["Member 5","Animation Developer","Play, Pause, Next, Prev, speed, step slider, keyboard shortcuts, dark mode"],["Member 6","Tester","Test suite, random graphs, edge cases, benchmark"],["Member 7","Documentation","Pseudocode, comparison table, report, PPT"]];
+const TEAM=[["Member!","DP","Integration,final demo"],["Member 2","UI Developer","Canvas, add/move/delete, undo, sample graphs, adjacency matrix"],["Member 3","Kruskal Developer","Sorting, Union-Find, step generation, sorted edge list"],["Member 4","Prim Developer","Priority queue, start node, step generation"],["Member 5","Animation Developer","Play, Pause, Next, Prev, speed, step slider, keyboard shortcuts, dark mode"],["Member 6","Tester","Test suite, random graphs, edge cases, benchmark"],["Member 7","Documentation","Pseudocode, comparison table, report, PPT"]];
 $('tm').innerHTML=TEAM.map(t=>`<div><b>${t[0]}</b><br>${t[1]}<br><small>${t[2]}</small></div>`).join('');
 const HI=[];
 function snap(){const j=JSON.stringify({nodes,edges});if(HI[HI.length-1]!==j){HI.push(j);if(HI.length>60)HI.shift()}}
