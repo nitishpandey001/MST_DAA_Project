@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Minimum Spanning Tree Visualizer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f3f5f0;--card:#fff;--tx:#14231c;--mut:#66736b;--bd:#d5dcd2;--grid:#e3e9e0;--ac:#0f766e;--ok:#15803d;--no:#c2410c;--wn:#b7791f;--node:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1714;--card:#16221e;--tx:#e6efe9;--mut:#90a299;--bd:#2b3b34;--grid:#1d2b25;--ac:#5eead4;--ok:#4ade80;--no:#fb923c;--wn:#fbbf24;--node:#1d2d27;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1714;--card:#16221e;--tx:#e6efe9;--mut:#90a299;--bd:#2b3b34;--grid:#1d2b25;--ac:#5eead4;--ok:#4ade80;--no:#fb923c;--wn:#fbbf24;--node:#1d2d27;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.45}
+.w{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:clamp(1.5rem,5vw,2.3rem);font-weight:800;margin:4px 0 2px;letter-spacing:-.02em}
+.s{margin:0 0 14px;color:var(--mut)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;min-height:40px}
+button{cursor:pointer}
+button.on{background:var(--ac);color:var(--bg);border-color:var(--ac);font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+#w{width:110px}
+.h{margin:4px 0 8px;color:var(--mut);font-size:.92rem}
+svg{display:block;width:100%;height:auto;touch-action:none;background-color:var(--card);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5% 8%;border:1px solid var(--bd);border-radius:12px}
+.st{display:flex;flex-wrap:wrap;gap:18px;margin:10px 0;font-weight:600}
+.st span{color:var(--mut);font-weight:400}
+.cx{margin:0 0 8px;color:var(--mut);font-size:.9rem}
+#log{margin:0;padding:0;list-style:none;max-height:220px;overflow-y:auto;border:1px solid var(--bd);border-radius:12px;background:var(--card)}
+#log li{padding:8px 12px;border-bottom:1px solid var(--bd);font-size:.93rem}
+#log li:last-child{border-bottom:0;font-weight:600}
+#log li.a{border-left:4px solid var(--ok)}
+#log li.r{border-left:4px solid var(--no)}
+#log li.i{border-left:4px solid var(--ac)}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--mut);margin:8px 0}
+.lg i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+h2{font-size:1.15rem;margin:0 0 6px}
+.sec{margin-top:22px;padding:14px;background:var(--card);border:1px solid var(--bd);border-radius:12px}
+.pc{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:.88rem}
+.pc span{display:block;padding:1px 8px;border-radius:4px}
+.pc .hl{background:var(--ac);color:var(--bg)}
+textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px;width:100%;font-family:ui-monospace,Menlo,monospace}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd);vertical-align:top}
+.tl{list-style:none;padding:0;margin:8px 0 0}
+.tl li{padding:3px 0}
+.tl .p{color:var(--ok)}
+.tl .f{color:var(--no)}
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.team div{border:1px solid var(--bd);border-radius:8px;padding:10px}
+.chips span{display:inline-block;margin:3px;padding:3px 10px;border:1px solid var(--bd);border-radius:999px;font-size:.85rem}
+.chips .a{background:var(--ok);color:var(--bg);border-color:var(--ok)}
+.chips .r{border-color:var(--no);color:var(--no);text-decoration:line-through}
+td.mk{background:var(--ok);color:var(--bg);font-weight:600}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>Minimum Spanning Tree Visualizer</h1>
+<div class="bar"><span class="s" style="margin:0">Run Kruskal and Prim step by step and watch the minimum spanning tree grow.</span><button id="th">Dark / Light</button></div>
+
+<div class="bar" id="modes">
+<button data-m="node" class="on">Add node</button>
+<button data-m="edge">Add edge</button>
+<button data-m="move">Move node</button>
+<button data-m="del">Delete</button>
+<select id="sm" aria-label="Sample graphs"><option value="">Sample graphs</option><option value="a">Classic (7 nodes)</option><option value="b">Disconnected graph</option><option value="c">Complete graph K5</option></select>
+<input id="w" type="number" min="1" max="99" placeholder="Weight" aria-label="Edge weight">
+<button id="rnd">Random graph</button>
+<button id="un">Undo</button><button id="clr">Clear</button>
+</div>
+<p class="h" id="hint"></p>
+
+<svg id="g" viewBox="0 0 800 500" role="img" aria-label="Graph canvas"></svg>
+<div class="lg"><span><i style="background:var(--ok)"></i>In MST</span><span><i style="background:var(--no)"></i>Rejected (cycle)</span><span><i style="background:var(--wn)"></i>Prim frontier</span></div>
+
+<div class="bar">
+<select id="al" aria-label="Algorithm"><option value="kruskal">Kruskal</option><option value="prim">Prim</option></select>
+<button id="rs">Reset</button>
+<button id="pv">Prev</button>
+<button id="pl">Play</button>
+<button id="nx">Next</button>
+<label>Speed <input id="sp" type="range" min="1" max="5" value="3"></label>
+<label>Step <input id="sc" type="range" min="0" max="0" value="0"></label>
+<select id="ps" aria-label="Prim start node"></select>
+</div>
+
+<div class="st">
+<div><span>Step </span><b id="sn">0/0</b></div>
+<div><span>MST weight </span><b id="tw">0</b></div>
+<div><span>MST edges </span><b id="ec">0</b></div>
+</div>
+<p class="cx" id="cx"></p>
+<p class="cx" id="ds"></p>
+<p class="h">Shortcuts: Space to play or pause, left and right arrows for previous and next step, R to reset.</p>
+<ol id="log" aria-live="polite"></ol>
+
+<section class="sec"><h2>Pseudocode</h2><pre class="pc" id="pc"></pre></section>
+
+<section class="sec"><h2>Build a graph from text</h2>
+<p class="h">One edge per line: node1 node2 weight (for example A B 4). Press Apply to build the graph.</p>
+<textarea id="el" rows="5" spellcheck="false" aria-label="Edge list"></textarea>
+<div class="bar"><button id="ap">Apply</button><button id="ex">Current graph as text</button></div></section>
+
+<section class="sec"><h2>Testing</h2>
+<div class="bar"><button id="tt">Run tests</button></div>
+<ul class="tl" id="tr"></ul></section>
+
+<section class="sec"><h2>Edge list (sorted by weight)</h2><div class="chips" id="sl"></div></section>
+
+<section class="sec"><h2>Adjacency matrix</h2><div class="tw" id="am"></div></section>
+
+<section class="sec"><h2>Performance benchmark</h2>
+<p class="h">Running time of both algorithms on random graphs. The time to generate the step text is included.</p>
+<div class="bar"><button id="bm">Run benchmark</button></div><div class="tw" id="bt"></div></section>
+
+<section class="sec"><h2>Kruskal vs Prim</h2>
+<div class="tw"><table>
+<tr><th></th><th>Kruskal</th><th>Prim</th></tr>
+<tr><td>Approach</td><td>Edge-based: always takes the cheapest safe edge</td><td>Vertex-based: grows one tree from a start node</td></tr>
+<tr><td>Data structure</td><td>Union-Find (DSU)</td><td>Priority queue</td></tr>
+<tr><td>Time</td><td>O(E log E)</td><td>O(E log V) with a heap</td></tr>
+<tr><td>Works best on</td><td>Sparse graph</td><td>Dense graph</td></tr>
+<tr><td>Disconnected graph</td><td>Gives a spanning forest</td><td>Needs a restart for each component</td></tr>
+</table></div>
+</section>
+
+<section class="sec"><h2>Team</h2><div class="team" id="tm"></div></section>
+</div>
+
+<script>
+const svg=document.getElementById('g'),$=id=>document.getElementById(id);
+let nodes=[],edges=[],mode='node',sel=null,steps=[],si=-1,timer=null,drag=null;
+const L=i=>String.fromCharCode(65+i);
+const hints={node:"Click an empty spot on the canvas to add a node (max 26).",edge:"Click two nodes one after the other. Type the weight in the box above, or leave it empty for a random weight.",move:"Drag a node to move it.",del:"Click a node or an edge to delete it."};
+function pt(e){const r=svg.getBoundingClientRect();return{x:(e.clientX-r.left)*800/r.width,y:(e.clientY-r.top)*500/r.height}}
+function nodeAt(p){return nodes.findIndex(n=>Math.hypot(n.x-p.x,n.y-p.y)<24)}
+function addEdge(a,b,w){
+  if(w===undefined){w=parseInt($('w').value)||1+Math.floor(Math.random()*20)}
+  const e=edges.find(e=>(e.a===a&&e.b===b)||(e.a===b&&e.b===a));
+  if(e)e.w=w;else edges.push({a,b,w});
+  resetRun();
+}
+svg.addEventListener('pointerdown',e=>{
+  const p=pt(e),i=nodeAt(p);
+  if(mode==='node'){if(i<0&&nodes.length<26){nodes.push({x:Math.min(780,Math.max(20,p.x)),y:Math.min(480,Math.max(20,p.y))});resetRun()}}
+  else if(mode==='edge'){
+    if(i>=0){if(sel===null)sel=i;else if(sel!==i){addEdge(sel,i);sel=null}else sel=null}else sel=null;
+  }else if(mode==='move'&&i>=0){drag=i;svg.setPointerCapture(e.pointerId)}else if(mode==='del'){if(i>=0)delNode(i);else{const k=edgeAt(p);if(k>=0){edges.splice(k,1);resetRun()}}}
+  draw();
+});
+svg.addEventListener('pointermove',e=>{if(drag!==null){const p=pt(e);nodes[drag].x=Math.min(780,Math.max(20,p.x));nodes[drag].y=Math.min(480,Math.max(20,p.y));draw()}});
+svg.addEventListener('pointerup',()=>{drag=null});
+
+document.querySelectorAll('#modes [data-m]').forEach(b=>b.onclick=()=>{
+  mode=b.dataset.m;sel=null;
+  document.querySelectorAll('#modes [data-m]').forEach(x=>x.classList.toggle('on',x===b));
+  $('hint').textContent=hints[mode];draw();
+});
+
+function kruskal(){
+  const s=[],p=nodes.map((_,i)=>i),f=x=>p[x]===x?x:(p[x]=f(p[x]));
+  const grp=()=>{const m={};nodes.forEach((_,i)=>{(m[f(i)]=m[f(i)]||[]).push(L(i))});return Object.values(m).map(x=>"{"+x.join(",")+"}").join(" ")};
+  const o=edges.map((_,i)=>i).sort((a,b)=>edges[a].w-edges[b].w);
+  let tot=0;
+  s.push({st:'info',t:"Sorted all edges by weight, smallest first."});
+  o.forEach(i=>{
+    const e=edges[i],a=f(e.a),b=f(e.b),nm=L(e.a)+"–"+L(e.b)+" (w="+e.w+")";
+    if(a!==b){p[a]=b;tot+=e.w;s.push({e:i,st:'accept',d:grp(),t:"Edge "+nm+": joins two different components, so it is added. Total = "+tot})}
+    else s.push({e:i,st:'reject',d:grp(),t:"Edge "+nm+": would form a cycle, so it is rejected."});
+  });
+  return s;
+}
+function prim(){
+  const s=[],vis=new Set();let tot=0;
+  const ps=+$('ps').value||0;for(let k=0;k<nodes.length;k++){const st=(ps+k)%nodes.length;
+    if(vis.has(st))continue;
+    vis.add(st);s.push({st:'info',n:st,t:"Started from node "+L(st)+"."});
+    for(;;){
+      let best=-1;
+      edges.forEach((e,i)=>{if(vis.has(e.a)!==vis.has(e.b)&&(best<0||e.w<edges[best].w))best=i});
+      if(best<0)break;
+      const e=edges[best],nn=vis.has(e.a)?e.b:e.a;
+      vis.add(nn);tot+=e.w;
+      s.push({e:best,st:'accept',n:nn,t:"Cheapest edge leaving the visited set: "+L(e.a)+"–"+L(e.b)+" (w="+e.w+"). Node "+L(nn)+" added. Total = "+tot});
+    }
+  }
+  return s;
+}
+function build(){
+  steps=($('al').value==='kruskal'?kruskal:prim)();
+  const mstEdges=steps.filter(x=>x.st==='accept').length;
+  if(nodes.length>1&&mstEdges<nodes.length-1)steps.push({st:'info',t:"The graph is not connected, so this is a spanning forest ("+mstEdges+" edges)."});
+  else if(nodes.length>1)steps.push({st:'info',t:"Done. The MST is ready with "+mstEdges+" edges."});
+}
+function resetRun(){snap();clearInterval(timer);timer=null;$('pl').textContent='Play';steps=[];si=-1;draw()}
+function next(){if(!steps.length){if(!edges.length)return;build()}if(si<steps.length-1){si++;draw()}else stop()}
+function stop(){clearInterval(timer);timer=null;$('pl').textContent='Play'}
+$('nx').onclick=()=>{stop();next()};
+$('pv').onclick=()=>{stop();if(si>=0){si--;draw()}};
+$('rs').onclick=()=>{resetRun()};
+$('al').onchange=()=>{resetRun()};
+$('pl').onclick=()=>{
+  if(timer){stop();return}
+  if(!edges.length)return;
+  if(!steps.length||si>=steps.length-1){steps=[];si=-1;build()}
+  $('pl').textContent='Pause';
+  const d=1800-$('sp').value*300;
+  const tick=()=>{if(si<steps.length-1){si++;draw()}else stop()};
+  tick();timer=setInterval(tick,d);
+};
+$('sp').oninput=()=>{if(timer){clearInterval(timer);const d=1800-$('sp').value*300;timer=setInterval(()=>{if(si<steps.length-1){si++;draw()}else stop()},d)}};
+$('clr').onclick=()=>{nodes=[];edges=[];sel=null;resetRun()};
+$('rnd').onclick=()=>{
+  const n=7;nodes=[];edges=[];sel=null;
+  for(let i=0;i<n;i++){const a=i/n*2*Math.PI;nodes.push({x:400+270*Math.cos(a)+Math.random()*40-20,y:250+185*Math.sin(a)+Math.random()*30-15})}
+  for(let i=1;i<n;i++)addEdge(i,Math.floor(Math.random()*i),1+Math.floor(Math.random()*20));
+  for(let k=0;k<5;k++){const a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);if(a!==b)addEdge(a,b,1+Math.floor(Math.random()*20))}
+  resetRun();
+};
+
+function draw(){fillPs();if(!steps.length&&edges.length)build();
+  const acc=new Set(),rej=new Set(),vis=new Set();let tot=0;
+  for(let j=0;j<=si;j++){
+    const s=steps[j];
+    if(s.n!==undefined)vis.add(s.n);
+    if(s.st==='accept'){acc.add(s.e);tot+=edges[s.e].w;vis.add(edges[s.e].a);vis.add(edges[s.e].b)}
+    if(s.st==='reject')rej.add(s.e);
+  }
+  const cur=si>=0?steps[si]:null,prim_=$('al').value==='prim';
+  let h='';
+  edges.forEach((e,i)=>{
+    const A=nodes[e.a],B=nodes[e.b],mx=(A.x+B.x)/2,my=(A.y+B.y)/2;
+    let c='var(--mut)',w=2,dash='',o=.55;
+    if(acc.has(i)){c='var(--ok)';w=5;o=1}
+    else if(rej.has(i)){c='var(--no)';w=2;dash='6 5';o=.9}
+    else if(prim_&&si>=0&&(vis.has(e.a)!==vis.has(e.b))){c='var(--wn)';w=3;o=1}
+    if(cur&&cur.e===i)w+=3;
+    h+=`<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" style="stroke:${c};opacity:${o}" stroke-width="${w}" stroke-dasharray="${dash}" stroke-linecap="round"/>`;
+    h+=`<rect x="${mx-13}" y="${my-11}" width="26" height="22" rx="6" style="fill:var(--card);stroke:var(--bd)"/><text x="${mx}" y="${my+5}" text-anchor="middle" font-size="14" font-weight="600" style="fill:var(--tx)">${e.w}</text>`;
+  });
+  nodes.forEach((n,i)=>{
+    const inT=vis.has(i),isSel=sel===i;
+    h+=`<circle cx="${n.x}" cy="${n.y}" r="21" style="fill:${inT?'var(--ok)':'var(--node)'};stroke:${isSel?'var(--ac)':inT?'var(--ok)':'var(--tx)'}" stroke-width="${isSel?5:2.5}"/>`;
+    h+=`<text x="${n.x}" y="${n.y+6}" text-anchor="middle" font-size="17" font-weight="800" style="fill:${inT?'var(--bg)':'var(--tx)'}">${L(i)}</text>`;
+  });
+  svg.innerHTML=h;
+  $('sc').max=steps.length;$('sc').value=si+1;
+  let ds='';
+  if(si>=0){
+    if(prim_){const fr=edges.filter(e=>vis.has(e.a)!==vis.has(e.b)).sort((a,b)=>a.w-b.w).map(e=>L(e.a)+"–"+L(e.b)+"("+e.w+")");ds="Visited: {"+[...vis].map(L).sort().join(",")+"}. Priority queue: "+(fr.join(", ")||"empty")}
+    else{let dd='';for(let j=si;j>=0;j--)if(steps[j].d){dd=steps[j].d;break}ds=dd?"Union-Find components: "+dd:""}
+  }
+  $('ds').textContent=ds;
+  const M=nodes.map(()=>nodes.map(()=>0)),K=nodes.map(()=>nodes.map(()=>0));
+  edges.forEach((e,i)=>{M[e.a][e.b]=M[e.b][e.a]=e.w;if(acc.has(i))K[e.a][e.b]=K[e.b][e.a]=1});
+  $('am').innerHTML=nodes.length?"<table><tr><th></th>"+nodes.map((_,i)=>"<th>"+L(i)+"</th>").join("")+"</tr>"+M.map((r,i)=>"<tr><th>"+L(i)+"</th>"+r.map((v,j)=>`<td class="${K[i][j]?'mk':''}">${v||'-'}</td>`).join("")+"</tr>").join("")+"</table>":"The graph is empty.";
+  $('sl').innerHTML=edges.map((e,i)=>({e,i})).sort((x,y)=>x.e.w-y.e.w).map(({e,i})=>`<span class="${acc.has(i)?'a':rej.has(i)?'r':''}">${L(e.a)}–${L(e.b)}: ${e.w}</span>`).join('')||"There are no edges yet.";
+  const hl=!cur?[]:prim_?(cur.st==='accept'?[1,2,3,4]:[0]):(cur.st==='accept'?[2,3,4]:cur.st==='reject'?[2,3,5]:[0,1]);
+  $('pc').innerHTML=PC[$('al').value].map((l,i)=>`<span class="${hl.includes(i)?'hl':''}">${l}</span>`).join('');
+  $('sn').textContent=Math.max(si+1,0)+"/"+steps.length;
+  $('tw').textContent=tot;$('ec').textContent=acc.size;
+  $('cx').textContent=CX[$('al').value];
+  const lg=$('log');
+  lg.innerHTML=si<0?'<li class="i">Add some edges, then press Play or Next.</li>':steps.slice(0,si+1).map(s=>`<li class="${s.st==='accept'?'a':s.st==='reject'?'r':'i'}">${s.t}</li>`).join('');
+  lg.scrollTop=lg.scrollHeight;
+}
+$('hint').textContent=hints.node;
+const PC={kruskal:["sort all edges by weight","make-set(v) for every vertex","for each edge (u, v) in sorted order:","    if find(u) differs from find(v):","        add edge to MST and union(u, v)","    else: skip edge (cycle)"],prim:["pick a start vertex and mark it visited","while some edge leaves the visited set:","    pick the cheapest such edge (u, v)","    add edge to MST","    mark v visited"]};
+function fillPs(){const s=$('ps');if(s.options.length!==nodes.length){const v=s.value;s.innerHTML=nodes.map((_,i)=>`<option value="${i}">Prim start: ${L(i)}</option>`).join('');if(v&&+v<nodes.length)s.value=v}}
+function delNode(i){nodes.splice(i,1);edges=edges.filter(e=>e.a!==i&&e.b!==i).map(e=>({a:e.a>i?e.a-1:e.a,b:e.b>i?e.b-1:e.b,w:e.w}));sel=null;resetRun()}
+function edgeAt(p){return edges.findIndex(e=>{const A=nodes[e.a],B=nodes[e.b],dx=B.x-A.x,dy=B.y-A.y,t=Math.max(0,Math.min(1,((p.x-A.x)*dx+(p.y-A.y)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(A.x+t*dx-p.x,A.y+t*dy-p.y)<10})}
+$('ps').onchange=()=>{resetRun()};
+$('sc').oninput=()=>{stop();if(!steps.length)build();si=+$('sc').value-1;draw()};
+$('ex').onclick=()=>{$('el').value=edges.map(e=>L(e.a)+" "+L(e.b)+" "+e.w).join("\n")};
+$('ap').onclick=()=>{
+  const ls=$('el').value.split("\n").map(x=>x.trim().toUpperCase().split(/\s+/)).filter(x=>x.length===3&&/^[A-Z]$/.test(x[0])&&/^[A-Z]$/.test(x[1])&&+x[2]>0);
+  const mx=ls.reduce((m,x)=>Math.max(m,x[0].charCodeAt(0)-64,x[1].charCodeAt(0)-64),0);
+  nodes=[];edges=[];sel=null;
+  for(let i=0;i<mx;i++){const a=i/mx*2*Math.PI;nodes.push({x:400+270*Math.cos(a),y:250+185*Math.sin(a)})}
+  ls.forEach(x=>{const a=x[0].charCodeAt(0)-65,b=x[1].charCodeAt(0)-65;if(a!==b)addEdge(a,b,+x[2])});
+  resetRun();
+};
+const mstW=f=>{const s=f().filter(x=>x.st==='accept');return{n:s.length,w:s.reduce((t,x)=>t+edges[x.e].w,0)}};
+const comps=()=>{const p=nodes.map((_,i)=>i),f=x=>p[x]===x?x:(p[x]=f(p[x]));edges.forEach(e=>{p[f(e.a)]=f(e.b)});return new Set(nodes.map((_,i)=>f(i))).size};
+$('tt').onclick=()=>{
+  const R=[],chk=(nm,ok)=>R.push(`<li class="${ok?'p':'f'}">${ok?'PASS':'FAIL'}: ${nm}</li>`);
+  const k=mstW(kruskal),p=mstW(prim);
+  chk("Current graph: Kruskal ("+k.w+") and Prim ("+p.w+") give the same total",k.w===p.w);
+  chk("MST edge count is correct (V minus components)",k.n===nodes.length-comps()&&p.n===k.n);
+  const sn=nodes,se=edges;let bad=0;
+  for(let t=0;t<100;t++){
+    const n=2+Math.floor(Math.random()*8);nodes=Array.from({length:n},()=>({x:0,y:0}));edges=[];
+    for(let q=0;q<n*2;q++){const a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);if(a!==b&&!edges.some(e=>(e.a===a&&e.b===b)||(e.a===b&&e.b===a)))edges.push({a,b,w:1+Math.floor(Math.random()*20)})}
+    if(mstW(kruskal).w!==mstW(prim).w)bad++;
+  }
+  chk("100 random graphs: both algorithms give the same MST weight ("+bad+" mismatches)",bad===0);
+  nodes=[{x:0,y:0}];edges=[];
+  chk("Single node, no edges: 0 MST edges, no crash",mstW(kruskal).n===0&&mstW(prim).n===0);
+  nodes=sn;edges=se;
+  $('tr').innerHTML=R.join('');
+};
+const TEAM=[["Nitish Pandey","Team Lead","Integration, GitHub repo, final demo"],["Member 2","UI Developer","Canvas, add/move/delete, undo, sample graphs, adjacency matrix"],["Member 3","Kruskal Developer","Sorting, Union-Find, step generation, sorted edge list"],["Member 4","Prim Developer","Priority queue, start node, step generation"],["Member 5","Animation Developer","Play, Pause, Next, Prev, speed, step slider, keyboard shortcuts, dark mode"],["Member 6","Tester","Test suite, random graphs, edge cases, benchmark"],["Member 7","Documentation","Pseudocode, comparison table, report, PPT"]];
+$('tm').innerHTML=TEAM.map(t=>`<div><b>${t[0]}</b><br>${t[1]}<br><small>${t[2]}</small></div>`).join('');
+const HI=[];
+function snap(){const j=JSON.stringify({nodes,edges});if(HI[HI.length-1]!==j){HI.push(j);if(HI.length>60)HI.shift()}}
+$('un').onclick=()=>{if(HI.length>1){HI.pop();const o=JSON.parse(HI[HI.length-1]);nodes=o.nodes;edges=o.edges;sel=null;resetRun()}};
+const CX={kruskal:"Kruskal: sorting makes it O(E log E); Union-Find checks for cycles in almost constant time.",prim:"Prim: this simple version is O(V·E); with a priority queue (heap) it becomes O(E log V)."};
+const SM={a:"A B 7\nA D 5\nB C 8\nB D 9\nB E 7\nC E 5\nD E 15\nD F 6\nE F 8\nE G 9\nF G 11",b:"A B 4\nB C 2\nA C 5\nD E 3\nE F 6\nD F 1",c:"A B 3\nA C 8\nA D 2\nA E 9\nB C 4\nB D 7\nB E 1\nC D 5\nC E 6\nD E 10"};
+$('sm').onchange=()=>{const v=$('sm').value;if(!SM[v])return;$('el').value=SM[v];$('ap').click();$('sm').value=''};
+$('bm').onclick=()=>{
+  const sn=nodes,se=edges;let rows="";
+  [50,100,200,400].forEach(n=>{
+    nodes=Array.from({length:n},()=>({x:0,y:0}));edges=[];
+    for(let i=1;i<n;i++)edges.push({a:i,b:Math.floor(Math.random()*i),w:1+Math.floor(Math.random()*100)});
+    for(let q=0;q<3*n;q++){const a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);if(a!==b)edges.push({a,b,w:1+Math.floor(Math.random()*100)})}
+    const tm=f=>{const t=performance.now(),r=mstW(f);return[performance.now()-t,r.w]};
+    const k=tm(kruskal),p=tm(prim);
+    rows+=`<tr><td>${n}</td><td>${edges.length}</td><td>${k[0].toFixed(1)} ms</td><td>${p[0].toFixed(1)} ms</td><td>${k[1]===p[1]?'same':'mismatch'}</td></tr>`;
+  });
+  nodes=sn;edges=se;
+  $('bt').innerHTML="<table><tr><th>V</th><th>E</th><th>Kruskal</th><th>Prim</th><th>MST weight</th></tr>"+rows+"</table>";
+};
+$('th').onclick=()=>{const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;d.dataset.theme=dark?'light':'dark'};
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName))return;if(e.key===' '){e.preventDefault();$('pl').click()}else if(e.key==='ArrowRight')$('nx').click();else if(e.key==='ArrowLeft')$('pv').click();else if(e.key==='r'||e.key==='R')$('rs').click()});
+$('rnd').click();HI.length=0;snap();
+</script>
+</body>
+</html>
