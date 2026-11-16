@@ -302,7 +302,7 @@ $('tt').onclick=()=>{
   $('tr').innerHTML=R.join('');
 };
 const TEAM=[["JAI SHARMA","canvas, node/edge add, move, delete, undo"],["VANSHIKA","sample graphs, random graph, text import/export, adjacency matrix"],["NITISH PANDEY","sorting, Union-Find, steps, sorted edge list"],["RATHI MANISH","priority queue, start node, steps."],["SHARAD JAISWAL","Play, Pause, Next, Prev, speed, slider, shortcuts, dark mode."],["NADEEM ANSARI","test suite, edge cases, benchmark"],["VANSH KANAUJIYA","pseudocode, complexity notes, comparison table"]];
-$('tm').innerHTML=TEAM.map(t=>`<div><b>${t[0]}</b><br>${t[1]}<br><small>${t[2]}</small></div>`).join('');
+$('tm').innerHTML=TEAM.map(t=>`<div><b>${t[0]}</b>${t.slice(1).map(x=>`<br>${x}`).join('')}</div>`).join('');
 const HI=[];
 function snap(){const j=JSON.stringify({nodes,edges});if(HI[HI.length-1]!==j){HI.push(j);if(HI.length>60)HI.shift()}}
 $('un').onclick=()=>{if(HI.length>1){HI.pop();const o=JSON.parse(HI[HI.length-1]);nodes=o.nodes;edges=o.edges;sel=null;resetRun()}};
