@@ -9,7 +9,7 @@ Open `index.html` in a browser. No install needed. With GitHub Pages enabled it 
 Add, move and delete nodes and edges, undo, sample graphs, random graph, build a graph from text, Kruskal and Prim step by step with Play, Pause, Next, Prev, speed and a step slider, Union-Find and priority queue display, sorted edge list, adjacency matrix, pseudocode with live highlighting, test suite, performance benchmark, dark and light mode, keyboard shortcuts.
 
 ## Team: 7 members, equal contribution
-There is no team lead. Every member owns exactly one module, writes the report section for it, makes 2 slides for it and presents it in the demo.
+
 
 | # | Module | Owner file | What it does |
 |---|---|---|---|
